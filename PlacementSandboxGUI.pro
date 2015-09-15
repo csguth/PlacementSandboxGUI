@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui svg
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -14,13 +14,16 @@ TEMPLATE = app
 CONFIG += c++11
 
 
+
 SOURCES += main.cpp\
         mainwindow.cpp \
     mycanvas.cpp \
-    flute_new.cpp
+    flute_new.cpp \
+    additemcommand.cpp
 
 HEADERS  += mainwindow.h \
     mycanvas.h \
-    flute.h
+    flute.h \
+    additemcommand.h
 
 FORMS    += mainwindow.ui

@@ -7,6 +7,10 @@
 #include <QGraphicsItemGroup>
 #include <QGraphicsLineItem>
 #include <array>
+#include <QtSvg>
+#include "additemcommand.h"
+
+
 
 QPen MyCanvas::itemPen(Qt::red);
 QPen MyCanvas::steinerPen(Qt::black);
@@ -22,6 +26,10 @@ MyCanvas::MyCanvas(QWidget *parent) :
     m_scene->setSceneRect(0,0,20000,20000);
     setDragMode(QGraphicsView::RubberBandDrag);
     setInteractive(true);
+    QPen cosmetic;
+    cosmetic.setWidth(3);
+    cosmetic.setCosmetic(true);
+    scene()->addRect(0,0,5000,5000)->setPen(cosmetic);
 }
 
 MyCanvas::~MyCanvas()
@@ -33,15 +41,28 @@ void MyCanvas::mouseDoubleClickEvent(QMouseEvent *event)
 {
     static std::array<int, 5> sizes{12,24,36,48,96};
     std::uniform_int_distribution<int> distribution(0, 4);
-
-
+    std::normal_distribution<double> normal(5.0, 3.0);
     qDebug() << "double click " << mapToScene(event->pos());
+
+    double normalValue = normal(engine);
+    int sizeIndex = 0;
+    if(normalValue > 0 && normalValue <= 2.5)
+        sizeIndex = 1;
+    else if(normalValue > 2.5 && normalValue <= 5.0)
+        sizeIndex = 2;
+    else if(normalValue > 5.0 && normalValue <= 7.5)
+        sizeIndex = 3;
+    else if(normalValue > 7.5 && normalValue <= 10.0)
+        sizeIndex = 4;
     QPointF position = mapToScene(event->pos());
     QGraphicsScene* scene = m_scene.get();
-    QGraphicsRectItem * item = scene->addRect(QRectF(QPointF(0,0), QSizeF(MyCanvas::gridSize.x()*sizes[distribution(engine)], MyCanvas::gridSize.y())), Qt::NoPen);
+    QGraphicsRectItem* item = new QGraphicsRectItem(QRectF(QPointF(0,0), QSizeF(MyCanvas::gridSize.x()*sizes[sizeIndex], MyCanvas::gridSize.y())));
+    item->setPen(Qt::NoPen);
     item->setBrush(QBrush(MyCanvas::itemColor));
     item->setPos(position);
     item->setFlags(QGraphicsItem::ItemIsMovable | QGraphicsItem::ItemIsSelectable);
+    m_stack.push(new AddItemCommand(item, scene));
+
 }
 
 void MyCanvas::keyPressEvent(QKeyEvent *event)
@@ -57,6 +78,15 @@ void MyCanvas::keyPressEvent(QKeyEvent *event)
         break;
     case Qt::Key_S:
         snapSelectedItems();
+        break;
+    case Qt::Key_Z:
+        if(QApplication::keyboardModifiers() & Qt::ControlModifier)
+        {
+            if(m_stack.canRedo() && (QApplication::keyboardModifiers() & Qt::ShiftModifier))
+                m_stack.redo();
+            else if(m_stack.canUndo())
+                m_stack.undo();
+        }
         break;
     }
 }
@@ -173,7 +203,7 @@ void MyCanvas::connectSelectedItems()
         steiner->addToGroup(lineBC);
     }
     steiner->setFlags(QGraphicsItem::ItemIsSelectable);
-    scene()->addItem(steiner);
+    m_stack.push(new AddItemCommand(steiner, scene()));
 }
 
 void MyCanvas::snapSelectedItems()
@@ -192,5 +222,28 @@ void MyCanvas::snapSelectedItems()
 void MyCanvas::critical(bool crit)
 {
     MyCanvas::itemColor = (crit? QColor(Qt::red) : QColor(Qt::green));
+}
+
+void MyCanvas::enablePan(bool arg)
+{
+    setInteractive(!arg);
+    setDragMode(QGraphicsView::RubberBandDrag);
+    if(arg)
+        setDragMode(DragMode::ScrollHandDrag);
+}
+
+void MyCanvas::saveSVG(const QString &filename)
+{
+    QSvgGenerator svgGen;
+
+    svgGen.setFileName( filename );
+    svgGen.setSize(QSize(200, 200));
+    svgGen.setViewBox(QRect(0, 0, 200, 200));
+    svgGen.setTitle(tr("SVG Generator Example Drawing"));
+    svgGen.setDescription(tr("An SVG drawing created by the SVG Generator "
+                             "Example provided with Qt."));
+
+    QPainter painter( &svgGen );
+    scene()->render( &painter );
 }
 

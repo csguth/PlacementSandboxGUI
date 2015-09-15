@@ -3,6 +3,7 @@
 
 #include <QGraphicsView>
 #include <memory>
+#include <QUndoStack>
 
 class MyCanvas : public QGraphicsView
 {
@@ -13,6 +14,8 @@ class MyCanvas : public QGraphicsView
     static QPointF gridSize;
     static QColor itemColor;
     static std::default_random_engine engine;
+
+    QUndoStack m_stack;
 
 
 public:
@@ -28,6 +31,10 @@ public:
     void snapSelectedItems();
 
     void critical(bool crit);
+    void enablePan(bool arg);
+
+
+    void saveSVG(const QString & filename);
 };
 
 #endif // MYCANVAS_H

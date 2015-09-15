@@ -40,9 +40,16 @@
      <x>0</x>
      <y>0</y>
      <width>782</width>
-     <height>25</height>
+     <height>20</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionSave_SVG"/>
+   </widget>
+   <addaction name="menuFile"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -51,8 +58,22 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="actionEnable_Pan"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
+  <action name="actionEnable_Pan">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Enable Pan</string>
+   </property>
+  </action>
+  <action name="actionSave_SVG">
+   <property name="text">
+    <string>Save SVG</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>

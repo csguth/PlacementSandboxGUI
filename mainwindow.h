@@ -18,6 +18,10 @@ public:
 private slots:
     void on_checkBox_toggled(bool checked);
 
+    void on_actionEnable_Pan_toggled(bool arg1);
+
+    void on_actionSave_SVG_triggered();
+
 private:
     Ui::MainWindow *ui;
 };
