@@ -23,7 +23,14 @@
      </widget>
     </item>
     <item>
-     <widget class="MyCanvas" name="graphicsView"/>
+     <widget class="MyCanvas" name="graphicsView">
+      <property name="verticalScrollBarPolicy">
+       <enum>Qt::ScrollBarAlwaysOff</enum>
+      </property>
+      <property name="horizontalScrollBarPolicy">
+       <enum>Qt::ScrollBarAlwaysOff</enum>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>
@@ -33,7 +40,7 @@
      <x>0</x>
      <y>0</y>
      <width>782</width>
-     <height>20</height>
+     <height>25</height>
     </rect>
    </property>
   </widget>

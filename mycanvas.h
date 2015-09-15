@@ -12,6 +12,7 @@ class MyCanvas : public QGraphicsView
     static QPen steinerPen;
     static QPointF gridSize;
     static QColor itemColor;
+    static std::default_random_engine engine;
 
 
 public:
@@ -20,6 +21,7 @@ public:
     void mouseDoubleClickEvent(QMouseEvent *event);
     void keyPressEvent(QKeyEvent *event);
     void drawBackground(QPainter *painter, const QRectF &rect);
+    void wheelEvent(QWheelEvent*event);
 
     void deleteSelectedItems();
     void connectSelectedItems();

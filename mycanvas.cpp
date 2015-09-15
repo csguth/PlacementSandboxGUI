@@ -6,18 +6,20 @@
 #include "flute.h"
 #include <QGraphicsItemGroup>
 #include <QGraphicsLineItem>
+#include <array>
 
 QPen MyCanvas::itemPen(Qt::red);
 QPen MyCanvas::steinerPen(Qt::black);
 QPointF MyCanvas::gridSize(10, 100);
 QColor MyCanvas::itemColor(Qt::red);
+std::default_random_engine MyCanvas::engine;
 
 MyCanvas::MyCanvas(QWidget *parent) :
     QGraphicsView(parent),
     m_scene(new QGraphicsScene)
 {
     setScene(m_scene.get());
-    m_scene->setSceneRect(0,0,1000,1000);
+    m_scene->setSceneRect(0,0,20000,20000);
     setDragMode(QGraphicsView::RubberBandDrag);
     setInteractive(true);
 }
@@ -29,10 +31,14 @@ MyCanvas::~MyCanvas()
 
 void MyCanvas::mouseDoubleClickEvent(QMouseEvent *event)
 {
+    static std::array<int, 5> sizes{12,24,36,48,96};
+    std::uniform_int_distribution<int> distribution(0, 4);
+
+
     qDebug() << "double click " << mapToScene(event->pos());
     QPointF position = mapToScene(event->pos());
     QGraphicsScene* scene = m_scene.get();
-    QGraphicsRectItem * item = scene->addRect(QRectF(QPointF(0,0), QSizeF(100.f, 100)), Qt::NoPen);
+    QGraphicsRectItem * item = scene->addRect(QRectF(QPointF(0,0), QSizeF(MyCanvas::gridSize.x()*sizes[distribution(engine)], MyCanvas::gridSize.y())), Qt::NoPen);
     item->setBrush(QBrush(MyCanvas::itemColor));
     item->setPos(position);
     item->setFlags(QGraphicsItem::ItemIsMovable | QGraphicsItem::ItemIsSelectable);
@@ -71,6 +77,14 @@ void MyCanvas::drawBackground(QPainter *painter, const QRectF &rect)
     painter->setPen(QPen(Qt::gray));
     painter->drawLines(lines.data(), lines.size());
 
+}
+
+void MyCanvas::wheelEvent(QWheelEvent *event)
+{
+    if(event->delta()>0)
+        scale(1.1f, 1.1f);
+    else
+        scale(1.f/1.1f, 1.f/1.1f);
 }
 
 void MyCanvas::deleteSelectedItems()
